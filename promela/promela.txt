@@ -1,0 +1,47 @@
+
+
+
+
+#define TRUE 1
+#define FALSE 0
+bool BuyConfRcv = FALSE;
+#define a (BuyConfRcv == TRUE)
+bool BuyReqRcv = FALSE;
+#define b (BuyReqRcv == TRUE)
+/*Potential outcomes from each operation*/
+mtype = {BuyConf, BuyReq};
+
+
+/*All channels in the diagram*/
+chan Store2Buyer = [0] of {mtype, byte};
+chan Buyer2Store = [0] of {mtype, byte};
+
+
+/*All processes involved in the choreography*/
+active proctype Buyer() {
+
+Buyer2Store ! BuyReq(1);
+atomic {Store2Buyer ? BuyConf(_); BuyConfRcv = TRUE;
+}
+
+}
+active proctype Store() {
+
+atomic {Buyer2Store ? BuyReq(_); BuyReqRcv = TRUE;
+}
+Store2Buyer ! BuyConf(1);
+
+}
+
+
+
+
+never {    /* <>a */
+T0_init:
+	if
+	:: ((a)) -> goto accept_all
+	:: (1) -> goto T0_init
+	fi;
+accept_all:
+	skip
+}
